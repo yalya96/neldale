@@ -76,6 +76,62 @@ class SystemeController extends AbstractController
                 return new JsonResponse($data, 500);
             }
     }
+       /**
+     * @Route("/ajoutprestataire")
+     */
+    public function addprest(Request $request, UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $entityManager)
+    {
+        $values = json_decode($request->getContent());
+        if(isset($values->NomEntreprise,$values->ninea,$values->AdresseEntreprise,$values->TelephoneEntreprise,$values->NumeroRegistre))
+        {
+            $prestataire= new Prestataire();
+            $prestataire->setNomEntreprise($values->NomEntreprise);
+            $prestataire->setNinea($values->ninea);
+            $prestataire->setAdresse($values->AdresseEntreprise);
+            $prestataire->setTelephone($values->TelephoneEntreprise);
+            $prestataire->setNumeroDeRegistre($values->NumeroRegistre);
+            $prestataire->setMail($values->mail);
+            $prestataire->setStatut("ACTIF");
+            
+            $user= new User();
+            $user->setPrenom($values->prenom);
+            $user->setCNI($values->CNI);
+            $user->setNom($values->nom);
+            $user->setTelephone($values->telephone);
+            $a=$prestataire->getId();
+            $b=rand(20,100);
+            $c=$values->prenom[0].$values->prenom[1];
+            $d=rand(0,20);
+            $e=$values->NomEntreprise[0].$values->NomEntreprise[1];
+            $f=$a.$b.$c.$d.$e;
+            $user->setUsername($f);
+            $user->setPassword($passwordEncoder->encodePassword($user, "welcome"));
+            $user->setRoles(['ROLE_PRESTATAIRE']);
+            $user->setAdresse($values->adresse);
+            $user->setPrest($prestataire);
+
+            $compte= new Compte();
+            $compte->setMontant(0);
+            $num=$this->numerocompte();
+            $compte->setNumeroDeCompte($num);
+            $compte->setPrest($prestataire);
+            $user->setCompte($compte);
+            $entityManager->persist($user);
+            $entityManager->persist($prestataire);
+            $entityManager->persist($compte);
+            $entityManager->flush();
+            $data = [
+                'status' => 500,
+                'message' => 'UTILISATEUR CREER'
+            ];
+            return new JsonResponse($data, 500);
+        }
+        $data = [
+            'status' => 500,
+            'message' => 'DARA BAKHOUL'
+        ];
+        return new JsonResponse($data, 500);
+    }
     function chiffre($test)
     {
         $retour=0;
