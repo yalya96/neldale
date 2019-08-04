@@ -15,6 +15,9 @@ return $getExpiry ? PHP_INT_MAX : Hydrator::hydrate(
             'unique' => [
                 true,
             ],
+            'nullable' => [
+                true,
+            ],
         ],
     ],
     [

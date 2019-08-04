@@ -1,0 +1,6 @@
+d90e2f,127.0.0.1,GET,http://localhost:8000/ajout,1564891587,f4738a,200
+f4738a,127.0.0.1,POST,http://localhost:8000/ajout,1564891587,,500
+585c6f,127.0.0.1,POST,http://localhost:8000/ajout,1564891615,,500
+58d286,127.0.0.1,POST,http://localhost:8000/ajout,1564891764,,500
+d1f744,127.0.0.1,POST,http://localhost:8000/ajout,1564891912,,500
+10cbb0,127.0.0.1,POST,http://localhost:8000/ajout,1564891945,,500
