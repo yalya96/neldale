@@ -17,6 +17,7 @@ return [
     '_profiler_exception_css' => [['token'], ['_controller' => 'web_profiler.controller.exception::cssAction'], [], [['text', '/exception.css'], ['variable', '/', '[^/]++', 'token', true], ['text', '/_profiler']], [], []],
     'authentification' => [[], ['_controller' => 'App\\Controller\\AuthentificationController::index'], [], [['text', '/authentification']], [], []],
     'prestataire' => [[], ['_controller' => 'App\\Controller\\PrestataireController::index'], [], [['text', '/prestataire']], [], []],
+    'app_prestataire_adduser' => [[], ['_controller' => 'App\\Controller\\PrestataireController::adduser'], [], [['text', '/ajoutuser']], [], []],
     'systeme' => [[], ['_controller' => 'App\\Controller\\SystemeController::index'], [], [['text', '/systeme']], [], []],
     'app_systeme_addsys' => [[], ['_controller' => 'App\\Controller\\SystemeController::addsys'], [], [['text', '/ajout']], [], []],
     'app_systeme_addprest' => [[], ['_controller' => 'App\\Controller\\SystemeController::addprest'], [], [['text', '/ajoutprestataire']], [], []],

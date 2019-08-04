@@ -15,6 +15,7 @@ return [
         '/_profiler/open' => [[['_route' => '_profiler_open_file', '_controller' => 'web_profiler.controller.profiler::openAction'], null, null, null, false, false, null]],
         '/authentification' => [[['_route' => 'authentification', '_controller' => 'App\\Controller\\AuthentificationController::index'], null, null, null, false, false, null]],
         '/prestataire' => [[['_route' => 'prestataire', '_controller' => 'App\\Controller\\PrestataireController::index'], null, null, null, false, false, null]],
+        '/ajoutuser' => [[['_route' => 'app_prestataire_adduser', '_controller' => 'App\\Controller\\PrestataireController::adduser'], null, null, null, false, false, null]],
         '/systeme' => [[['_route' => 'systeme', '_controller' => 'App\\Controller\\SystemeController::index'], null, null, null, false, false, null]],
         '/ajout' => [[['_route' => 'app_systeme_addsys', '_controller' => 'App\\Controller\\SystemeController::addsys'], null, null, null, false, false, null]],
         '/ajoutprestataire' => [[['_route' => 'app_systeme_addprest', '_controller' => 'App\\Controller\\SystemeController::addprest'], null, null, null, false, false, null]],
