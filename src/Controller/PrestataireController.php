@@ -10,11 +10,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\User;
 use App\Entity\Prestataire;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
+    /**
+     * @Route("/prestataire", name="prestataire")
+     */
 class PrestataireController extends AbstractController
 {
     /**
-     * @Route("/prestataire", name="prestataire")
+     * @Route("/", name="prestataire")
      */
     public function index()
     {
@@ -40,6 +42,7 @@ class PrestataireController extends AbstractController
                     $user->setCNI($values->CNI);
                     $user->setAdresse($values->adresse);
                     $user->setTelephone(trim($values->telephone));
+                    $user->setStatut("ACTIF");
                     $prestataire = $this->getDoctrine()->getRepository(Prestataire::class)->find($values->prestataire);
                     $a=$values->prestataire;
                     $b=rand(20,100);

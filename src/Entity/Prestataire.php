@@ -46,11 +46,6 @@ class Prestataire
     private $Telephone;
 
     /**
-     * @ORM\Column(type="string", length=255, unique=true)
-     */
-    private $Mail;
-
-    /**
      * @ORM\Column(type="string", length=255)
      */
     private $Statut;
@@ -132,18 +127,6 @@ class Prestataire
     public function setTelephone(string $Telephone): self
     {
         $this->Telephone = $Telephone;
-
-        return $this;
-    }
-
-    public function getMail(): ?string
-    {
-        return $this->Mail;
-    }
-
-    public function setMail(string $Mail): self
-    {
-        $this->Mail = $Mail;
 
         return $this;
     }

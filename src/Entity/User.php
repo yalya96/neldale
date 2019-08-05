@@ -51,7 +51,7 @@ class User implements UserInterface
     private $Telephone;
 
     /**
-     * @ORM\Column(type="integer", unique=true, nullable=true)
+     * @ORM\Column(type="integer", unique=true, nullable=true, length=16)
      */
     private $CNI;
 

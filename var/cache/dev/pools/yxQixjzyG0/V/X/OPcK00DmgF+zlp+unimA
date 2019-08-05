@@ -4,18 +4,25 @@ namespace Symfony\Component\VarExporter\Internal;
 
 return $getExpiry ? PHP_INT_MAX : Hydrator::hydrate(
     $o = [
-        clone (Registry::$prototypes['Symfony\\Component\\Routing\\Annotation\\Route'] ?? Registry::p('Symfony\\Component\\Routing\\Annotation\\Route')),
+        clone (($p = &Registry::$prototypes)['Symfony\\Component\\Routing\\Annotation\\Route'] ?? Registry::p('Symfony\\Component\\Routing\\Annotation\\Route')),
+        clone ($p['Sensio\\Bundle\\FrameworkExtraBundle\\Configuration\\Security'] ?? Registry::p('Sensio\\Bundle\\FrameworkExtraBundle\\Configuration\\Security')),
     ],
     null,
     [
         'Symfony\\Component\\Routing\\Annotation\\Route' => [
             'path' => [
-                '/ajoutprestataire',
+                '/ajoutprest',
+            ],
+        ],
+        'Sensio\\Bundle\\FrameworkExtraBundle\\Configuration\\Security' => [
+            'expression' => [
+                1 => 'has_role(\'ROLE_SUPERADMIN\')',
             ],
         ],
     ],
     [
         $o[0],
+        $o[1],
     ],
     []
 );

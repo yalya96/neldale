@@ -11,11 +11,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use App\Entity\Depot;
+use Doctrine\ORM\EntityNotFoundException;
 
 class SystemeController extends AbstractController
 {
     /**
-     * @Route("/systeme", name="systeme")
+     * @Route("/", name="systeme")
      */
     public function index()
     {
@@ -24,17 +28,17 @@ class SystemeController extends AbstractController
         ]);
     }
     /**
-     * @Route("/ajout")
+     * @Route("/ajoutsys")
+     * @IsGranted("ROLE_SUPERADMIN")
      */
     public function addsys(Request $request, UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $entityManager)
     {
         $values = json_decode($request->getContent());
-        if(isset($values->username) && isset($values->prenom) && isset($values->nom) && isset($values->telephone)) 
+        $a=$this->chiffre($values->prenom);
+        $b=$this->chiffre($values->nom);
+        if(!empty($values->prenom) && !empty($values->nom) && !empty($values->username) &&
+            $a==0 && $b==0 && ($values->profil==2 || $values->profil==1) && is_numeric($values->telephone) && (strlen($values->telephone)==9) )
         {
-            $a=$this->chiffre($values->prenom);
-            $b=$this->chiffre($values->nom);
-            if ((is_numeric($values->telephone) && $a==0 && $b==0) && ($values->profil==2 || $values->profil==1))
-            {
                     $user= new User();
                     $user->setPrenom(trim($values->prenom));
                     $user->setNom(trim($values->nom));
@@ -42,47 +46,43 @@ class SystemeController extends AbstractController
                     $user->setUsername(trim($values->username));
                     $user->setPassword($passwordEncoder->encodePassword($user, "welcome"));
                     if ($values->profil==1) {
-                        $user->setRoles(['ROLE_SUPERADMIN']);    
+                        $user->setRoles(['ROLE_ADMIN']);    
                     }
                     if ($values->profil==2) {
-                        $user->setRoles(['ROLE_CAISSIER']);    
+                        $user->setRoles(['ROLE_CAISSIER']);   
                     }
+                    $user->setStatut("ACTIF"); 
                     $entityManager->persist($user);
                     $entityManager->flush();
                     $data=[
                         'Message'=>'UTILISATEUR CREER',
                         'Username'=> $user->getUsername(),
-                        'MOT DE PASSE'=>'welcome',
-                        'ROLES'=> $user->getRoles()
+                        'MOT DE PASSE'=>'welcome'
                     ];
-                    return new JsonResponse($data, 500);
-            }
-            else {
-                $data = [
-                    'status' => 500,
-                    'message' => 'UTILISATEUR NONCREER1'
-                ];
-                return new JsonResponse($data, 500);
-            }
-             
-            
-                
+                    return new JsonResponse($data, 500); 
         }
             else {
                 $data = [
                     'status' => 500,
-                    'message' => 'UTILISATEUR NONCREER2'
+                    'message' => 'UTILISATEUR NONCREER'
                 ];
                 return new JsonResponse($data, 500);
             }
     }
-       /**
-     * @Route("/ajoutprestataire")
+    /**
+     * @Route("/ajoutprest")
+     * @Security("has_role('ROLE_SUPERADMIN')")
      */
     public function addprest(Request $request, UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $entityManager)
     {
         $values = json_decode($request->getContent());
-        if(isset($values->NomEntreprise,$values->ninea,$values->AdresseEntreprise,$values->TelephoneEntreprise,$values->NumeroRegistre))
+        $a=$this->chiffre($values->NomEntreprise);
+        $b=$this->chiffre($values->prenom);
+        $c=$this->chiffre($values->nom);
+        if(!empty($values->NomEntreprise) && !empty($values->ninea) && !empty($values->AdresseEntreprise) && !empty($values->TelephoneEntreprise) && !empty($values->NumeroRegistre)
+            && $a==0 && $b==0 && $c==0 && is_numeric($values->TelephoneEntreprise) && is_numeric($values->NumeroRegistre)
+            && is_numeric($values->telephone) && (strlen($values->telephone)==9) && (strlen($values->TelephoneEntreprise)==9)
+            )
         {
             $prestataire= new Prestataire();
             $prestataire->setNomEntreprise($values->NomEntreprise);
@@ -90,7 +90,7 @@ class SystemeController extends AbstractController
             $prestataire->setAdresse($values->AdresseEntreprise);
             $prestataire->setTelephone($values->TelephoneEntreprise);
             $prestataire->setNumeroDeRegistre($values->NumeroRegistre);
-            $prestataire->setMail($values->mail);
+            $prestataire->setMail($values->mail,EmailType::class);
             $prestataire->setStatut("ACTIF");
             
             $user= new User();
@@ -116,12 +116,29 @@ class SystemeController extends AbstractController
             $compte->setNumeroDeCompte($num);
             $compte->setPrest($prestataire);
             $user->setCompte($compte);
+            try {
+                $entityManager->persist($user);
+                $entityManager->persist($prestataire);
+                $entityManager->persist($compte);
+                $entityManager->flush();
+                $data = [
+                    'status' => 201,
+                    'message' => 'UTILISATEUR CREER'
+                ];
+                return new JsonResponse($data, 500);
+            } catch (EntityNotFoundException $e ) {
+                $data = [
+                    'status' => 201,
+                    'message' => 'UTILISATEUR NON CREER'
+                ];
+                return new JsonResponse($data, 500);
+            }
             $entityManager->persist($user);
             $entityManager->persist($prestataire);
             $entityManager->persist($compte);
             $entityManager->flush();
             $data = [
-                'status' => 500,
+                'status' => 201,
                 'message' => 'UTILISATEUR CREER'
             ];
             return new JsonResponse($data, 500);
@@ -132,16 +149,58 @@ class SystemeController extends AbstractController
         ];
         return new JsonResponse($data, 500);
     }
+    /**
+     * @Route("/depot", name="depot", methods={"POST"})
+     */
+    public function yaya(Request $request, EntityManagerInterface $entityManager)
+    {
+        $a1=$this->getUser()->getId();
+
+        $values = json_decode($request->getContent());
+        $a=$this->getDoctrine()->getRepository(Compte::class)->findOneBy(["NumeroDeCompte" => $values->NumeroDeCompte]);
+        $b=$this->getDoctrine()->getRepository(User::class)->find($a1);
+        $a2=$a->getId();
+        $c=$this->getDoctrine()->getRepository(Compte::class)->find($a2);
+        $a3=$a->getMontant();
+        $depot= new Depot();
+        $depot->setCaissier($b);
+        $depot->setCompte($c);
+        $depot->setDateDeDepot( new \DateTime());
+        $depot->setSoldeInitial($a3);
+        $depot->setMontant($values->montant);
+        $entityManager = $this->getDoctrine()->getManager();
+        $jour = $entityManager->getRepository(Compte::class)->find($c);
+        $jour->setMontant($a3+$values->montant);
+        $entityManager->persist($depot);
+        $entityManager->flush();
+        $data = [
+            'status' => 500,
+            'message' => 'merci'
+        ];
+        return new JsonResponse($data, 500);
+    }
     function chiffre($test)
     {
         $retour=0;
         $taille=strlen($test);
-       for ($i=0; $i < $taille; $i++) { 
-           if (is_numeric($test[$i])) {
-               $retour=1;
-                break;
-           }
-       }
+        $test=strtolower($test);
+        for ($i=0; $i < $taille; $i++) 
+        {
+            $retour=1; 
+            if (ord($test[$i])==97 || ord($test[$i])==98 || ord($test[$i])==99 || ord($test[$i])==100 || ord($test[$i])==101
+            || ord($test[$i])==102 || ord($test[$i])==103 || ord($test[$i])==104 || ord($test[$i])==105 || ord($test[$i])==106
+            || ord($test[$i])==107 || ord($test[$i])==108 || ord($test[$i])==109 || ord($test[$i])==110 || ord($test[$i])==111
+            || ord($test[$i])==112 || ord($test[$i])==113 || ord($test[$i])==114 || ord($test[$i])==115 || ord($test[$i])==116
+            || ord($test[$i])==117 || ord($test[$i])==118 || ord($test[$i])==118 || ord($test[$i])==119 || ord($test[$i])==120
+            || ord($test[$i])==121 || ord($test[$i])==122 || $test[$i]=="é" || $test[$i]=="è" || $test[$i]=="ê" 
+            || $test[$i]=="à" || $test[$i]=="â" || $test[$i]=="ê" || $test[$i]=="ï" || $test[$i]=="î" || $test[$i]=="ç") {
+                $retour=0;
+            }
+            if (is_numeric($test[$i])) {
+                $retour=1;
+                 break;
+            }
+        }      
        if ($retour==0) {
            return $retour;
        }

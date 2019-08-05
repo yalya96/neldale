@@ -47,4 +47,11 @@ class UserRepository extends ServiceEntityRepository
         ;
     }
     */
+    // public function blocage(EntityManagerInterface $a)
+    // {
+    //     $test = $a->getRepository(User::class)->createQueryBuilder('us');
+    //     $test->select('us')
+    //          ->from('User','us')
+    //          ->where('us.statut=BLOQUER');
+    // }
 }
