@@ -81,8 +81,8 @@ class SystemeController extends AbstractController
         $c=$this->chiffre($values->nom);
         if(!empty($values->NomEntreprise) && !empty($values->ninea) && !empty($values->AdresseEntreprise) && !empty($values->TelephoneEntreprise) && !empty($values->NumeroRegistre)
             && $a==0 && $b==0 && $c==0 && is_numeric($values->TelephoneEntreprise) && is_numeric($values->NumeroRegistre)
-            && is_numeric($values->telephone) && (strlen($values->telephone)==9) && (strlen($values->TelephoneEntreprise)==9)
-            )
+            && is_numeric($values->telephone) && (strlen($values->telephone)==9) && (strlen($values->TelephoneEntreprise)==9) && (strlen($values->CNI)==16)
+            && !empty($values->prenom) && !empty($values->nom))
         {
             $prestataire= new Prestataire();
             $prestataire->setNomEntreprise($values->NomEntreprise);
@@ -90,7 +90,6 @@ class SystemeController extends AbstractController
             $prestataire->setAdresse($values->AdresseEntreprise);
             $prestataire->setTelephone($values->TelephoneEntreprise);
             $prestataire->setNumeroDeRegistre($values->NumeroRegistre);
-            $prestataire->setMail($values->mail,EmailType::class);
             $prestataire->setStatut("ACTIF");
             
             $user= new User();
@@ -113,6 +112,8 @@ class SystemeController extends AbstractController
             $compte= new Compte();
             $compte->setMontant(0);
             $num=$this->numerocompte();
+            $e=strtoupper($values->NomEntreprise[0]);
+            $num=$e.$num;
             $compte->setNumeroDeCompte($num);
             $compte->setPrest($prestataire);
             $user->setCompte($compte);
@@ -154,30 +155,40 @@ class SystemeController extends AbstractController
      */
     public function yaya(Request $request, EntityManagerInterface $entityManager)
     {
-        $a1=$this->getUser()->getId();
-
         $values = json_decode($request->getContent());
-        $a=$this->getDoctrine()->getRepository(Compte::class)->findOneBy(["NumeroDeCompte" => $values->NumeroDeCompte]);
-        $b=$this->getDoctrine()->getRepository(User::class)->find($a1);
-        $a2=$a->getId();
-        $c=$this->getDoctrine()->getRepository(Compte::class)->find($a2);
-        $a3=$a->getMontant();
-        $depot= new Depot();
-        $depot->setCaissier($b);
-        $depot->setCompte($c);
-        $depot->setDateDeDepot( new \DateTime());
-        $depot->setSoldeInitial($a3);
-        $depot->setMontant($values->montant);
-        $entityManager = $this->getDoctrine()->getManager();
-        $jour = $entityManager->getRepository(Compte::class)->find($c);
-        $jour->setMontant($a3+$values->montant);
-        $entityManager->persist($depot);
-        $entityManager->flush();
-        $data = [
-            'status' => 500,
-            'message' => 'merci'
-        ];
-        return new JsonResponse($data, 500);
+
+            $a1=$this->getUser()->getId();        
+            $a=$this->getDoctrine()->getRepository(Compte::class)->findOneBy(["NumeroDeCompte" => $values->NumeroDeCompte]);
+            if ($values->montant>=75000 && $a) 
+            {
+            $b=$this->getDoctrine()->getRepository(User::class)->find($a1);
+            $a2=$a->getId();
+            $c=$this->getDoctrine()->getRepository(Compte::class)->find($a2);
+            $a3=$a->getMontant();
+            $depot= new Depot();
+            $depot->setCaissier($b);
+            $depot->setCompte($c);
+            $depot->setDateDeDepot( new \DateTime());
+            $depot->setSoldeInitial($a3);
+            $depot->setMontant($values->montant);
+            $entityManager = $this->getDoctrine()->getManager();
+            $jour = $entityManager->getRepository(Compte::class)->find($c);
+            $jour->setMontant($a3+$values->montant);
+            $entityManager->persist($depot);
+            $entityManager->flush();
+            $data = [
+                'status' => 201,
+                'message' => 'merci'
+            ];
+            return new JsonResponse($data, 500);    
+        }
+        else {
+            $data = [
+                'status' => 500,
+                'message' => 'DARABAKHOUL'
+            ];
+            return new JsonResponse($data, 500);   
+        }
     }
     function chiffre($test)
     {

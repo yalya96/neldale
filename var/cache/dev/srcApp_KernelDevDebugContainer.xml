@@ -495,6 +495,9 @@
       <tag name="doctrine.fixture.orm"/>
       <argument type="service" id="security.user_password_encoder.generic"/>
     </service>
+    <service id="App\EventSubscriber\ExceptionSubscriber" class="App\EventSubscriber\ExceptionSubscriber" autowire="true" autoconfigure="true">
+      <tag name="kernel.event_subscriber"/>
+    </service>
     <service id="App\Repository\CompteRepository" class="App\Repository\CompteRepository" autowire="true" autoconfigure="true">
       <tag name="doctrine.repository_service"/>
       <argument type="service" id="doctrine"/>
@@ -1453,6 +1456,14 @@
         <argument>1</argument>
       </call>
       <call method="addListener">
+        <argument>kernel.exception</argument>
+        <argument type="collection">
+          <argument type="service" id="App\EventSubscriber\ExceptionSubscriber"/>
+          <argument>onKernelException</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
         <argument>kernel.response</argument>
         <argument type="collection">
           <argument type="service" id="response_listener"/>
@@ -1606,14 +1617,6 @@
       </call>
       <call method="addListener">
         <argument>kernel.request</argument>
-        <argument type="collection">
-          <argument type="service" id="debug.debug_handlers_listener"/>
-          <argument>configure</argument>
-        </argument>
-        <argument>2048</argument>
-      </call>
-      <call method="addListener">
-        <argument>console.command</argument>
         <argument type="collection">
           <argument type="service" id="debug.debug_handlers_listener"/>
           <argument>configure</argument>
@@ -3123,6 +3126,7 @@
         <argument type="service" id="security.authentication.provider.guard.systeme1"/>
         <argument type="service" id="security.authentication.provider.guard.systeme2"/>
         <argument type="service" id="security.authentication.provider.guard.systeme3"/>
+        <argument type="service" id="security.authentication.provider.guard.systeme4"/>
       </argument>
       <argument>true</argument>
       <call method="setEventDispatcher">
@@ -3184,7 +3188,7 @@
       <argument type="service" id="security.role_hierarchy" on-invalid="null"/>
     </service>
     <service id="security.firewall.map" class="Symfony\Bundle\SecurityBundle\Security\FirewallMap" public="false">
-      <argument type="service" id=".service_locator._whxAGf"/>
+      <argument type="service" id=".service_locator.bJYnyAb"/>
       <argument type="iterator">
         <argument key="security.firewall.map.context.dev" type="service" id=".security.request_matcher.Iy.T22O"/>
         <argument key="security.firewall.map.context.login" type="service" id=".security.request_matcher.aOksG4F"/>
@@ -3192,6 +3196,7 @@
         <argument key="security.firewall.map.context.systeme1" type="service" id=".security.request_matcher.4niSygQ"/>
         <argument key="security.firewall.map.context.systeme2" type="service" id=".security.request_matcher.8ZU1li8"/>
         <argument key="security.firewall.map.context.systeme3" type="service" id=".security.request_matcher.gnUI2x2"/>
+        <argument key="security.firewall.map.context.systeme4" type="service" id=".security.request_matcher.iYFFAyA"/>
       </argument>
     </service>
     <service id="security.firewall.context" class="Symfony\Bundle\SecurityBundle\Security\FirewallContext" public="false" abstract="true">
@@ -3275,6 +3280,13 @@
       <argument type="service" id="logger" on-invalid="null"/>
     </service>
     <service id="security.access_map" class="Symfony\Component\Security\Http\AccessMap" public="false">
+      <call method="add">
+        <argument type="service" id=".security.request_matcher.naaKOYr"/>
+        <argument type="collection">
+          <argument>ROLE_PRESTATAIRE</argument>
+        </argument>
+        <argument>null</argument>
+      </call>
       <call method="add">
         <argument type="service" id=".security.request_matcher.vM6jepe"/>
         <argument type="collection">
@@ -3567,6 +3579,7 @@
         <argument>systeme1</argument>
         <argument>systeme2</argument>
         <argument>systeme3</argument>
+        <argument>systeme4</argument>
       </argument>
       <call method="setSessionAuthenticationStrategy">
         <argument type="service" id="security.authentication.session_strategy"/>
@@ -3951,7 +3964,65 @@
       <argument>null</argument>
       <argument type="service" id="security.firewall.map.config.systeme3"/>
     </service>
-    <service id=".service_locator._whxAGf" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id="security.firewall.map.config.systeme4" class="Symfony\Bundle\SecurityBundle\Security\FirewallConfig" public="false">
+      <argument>systeme4</argument>
+      <argument>security.user_checker</argument>
+      <argument>.security.request_matcher.iYFFAyA</argument>
+      <argument>true</argument>
+      <argument>true</argument>
+      <argument>security.user.provider.concrete.app_user_provider</argument>
+      <argument>null</argument>
+      <argument>lexik_jwt_authentication.jwt_token_authenticator</argument>
+      <argument>null</argument>
+      <argument>null</argument>
+      <argument type="collection">
+        <argument>guard</argument>
+      </argument>
+      <argument>null</argument>
+    </service>
+    <service id=".security.request_matcher.iYFFAyA" class="Symfony\Component\HttpFoundation\RequestMatcher" public="false">
+      <argument>^/ajoutuser</argument>
+    </service>
+    <service id="security.authentication.provider.guard.systeme4" class="Symfony\Component\Security\Guard\Provider\GuardAuthenticationProvider" public="false">
+      <argument type="iterator">
+        <argument type="service" id="lexik_jwt_authentication.security.guard.jwt_token_authenticator"/>
+      </argument>
+      <argument type="service" id="security.user.provider.concrete.app_user_provider"/>
+      <argument>systeme4</argument>
+      <argument type="service" id="security.user_checker"/>
+    </service>
+    <service id="security.authentication.listener.guard.systeme4" class="Symfony\Component\Security\Guard\Firewall\GuardAuthenticationListener" public="false">
+      <tag name="security.remember_me_aware" id="systeme4" provider="security.user.provider.concrete.app_user_provider"/>
+      <argument type="service" id="security.authentication.guard_handler"/>
+      <argument type="service" id="security.authentication.manager"/>
+      <argument>systeme4</argument>
+      <argument type="iterator">
+        <argument type="service" id="lexik_jwt_authentication.security.guard.jwt_token_authenticator"/>
+      </argument>
+      <argument type="service" id="logger" on-invalid="null"/>
+    </service>
+    <service id="security.exception_listener.systeme4" class="Symfony\Component\Security\Http\Firewall\ExceptionListener" public="false">
+      <argument type="service" id="security.token_storage"/>
+      <argument type="service" id="security.authentication.trust_resolver"/>
+      <argument type="service" id="security.http_utils"/>
+      <argument>systeme4</argument>
+      <argument type="service" id="lexik_jwt_authentication.security.guard.jwt_token_authenticator"/>
+      <argument>null</argument>
+      <argument>null</argument>
+      <argument type="service" id="logger" on-invalid="null"/>
+      <argument>true</argument>
+    </service>
+    <service id="security.firewall.map.context.systeme4" class="Symfony\Bundle\SecurityBundle\Security\FirewallContext" public="false">
+      <argument type="iterator">
+        <argument type="service" id="security.channel_listener"/>
+        <argument type="service" id="security.authentication.listener.guard.systeme4"/>
+        <argument type="service" id="security.access_listener"/>
+      </argument>
+      <argument type="service" id="security.exception_listener.systeme4"/>
+      <argument>null</argument>
+      <argument type="service" id="security.firewall.map.config.systeme4"/>
+    </service>
+    <service id=".service_locator.bJYnyAb" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="security.firewall.map.context.dev" type="service" id="security.firewall.map.context.dev"/>
@@ -3960,7 +4031,11 @@
         <argument key="security.firewall.map.context.systeme1" type="service" id="security.firewall.map.context.systeme1"/>
         <argument key="security.firewall.map.context.systeme2" type="service" id="security.firewall.map.context.systeme2"/>
         <argument key="security.firewall.map.context.systeme3" type="service" id="security.firewall.map.context.systeme3"/>
+        <argument key="security.firewall.map.context.systeme4" type="service" id="security.firewall.map.context.systeme4"/>
       </argument>
+    </service>
+    <service id=".security.request_matcher.naaKOYr" class="Symfony\Component\HttpFoundation\RequestMatcher" public="false">
+      <argument>^/ajoutuser</argument>
     </service>
     <service id=".security.request_matcher.vM6jepe" class="Symfony\Component\HttpFoundation\RequestMatcher" public="false">
       <argument>^/ajoutsys</argument>
@@ -4812,6 +4887,8 @@
     <service id=".abstract.instanceof.App\DataFixtures\AppFixtures" class="App\DataFixtures\AppFixtures" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\FixturesBundle\ORMFixtureInterface.0.App\DataFixtures\SystemeFixtures" class="App\DataFixtures\SystemeFixtures" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\DataFixtures\SystemeFixtures" class="App\DataFixtures\SystemeFixtures" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Component\EventDispatcher\EventSubscriberInterface.0.App\EventSubscriber\ExceptionSubscriber" class="App\EventSubscriber\ExceptionSubscriber" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\EventSubscriber\ExceptionSubscriber" class="App\EventSubscriber\ExceptionSubscriber" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\CompteRepository" class="App\Repository\CompteRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\CompteRepository" class="App\Repository\CompteRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\DepotRepository" class="App\Repository\DepotRepository" autowire="true" abstract="true"/>
@@ -5660,6 +5737,8 @@
     <service id="security.user_checker.systeme2" alias="security.user_checker" public="false"/>
     <service id="security.authentication.session_strategy.systeme3" alias="security.authentication.session_strategy_noop"/>
     <service id="security.user_checker.systeme3" alias="security.user_checker" public="false"/>
+    <service id="security.authentication.session_strategy.systeme4" alias="security.authentication.session_strategy_noop"/>
+    <service id="security.user_checker.systeme4" alias="security.user_checker" public="false"/>
     <service id="Symfony\Component\Security\Core\User\UserCheckerInterface" alias="security.user_checker" public="false"/>
     <service id="api_platform.serializer" alias="serializer"/>
     <service id="api_platform.property_accessor" alias="property_accessor" public="false"/>

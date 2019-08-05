@@ -10,9 +10,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\User;
 use App\Entity\Prestataire;
 use Symfony\Component\HttpFoundation\JsonResponse;
-    /**
-     * @Route("/prestataire", name="prestataire")
-     */
 class PrestataireController extends AbstractController
 {
     /**
@@ -34,27 +31,29 @@ class PrestataireController extends AbstractController
         {
             $a=$this->chiffre($values->prenom);
             $b=$this->chiffre($values->nom);
-            if ((is_numeric($values->telephone) && $a==0 && $b==0))
+            if ( (strlen($values->telephone)==9) && !empty($values->prenom) && !empty($values->nom)
+                && (is_numeric($values->telephone)) && $a==0 && $b==0
+                )
             {
                     $user= new User();
                     $user->setPrenom(trim($values->prenom));
                     $user->setNom(trim($values->nom));
                     $user->setCNI($values->CNI);
-                    $user->setAdresse($values->adresse);
+                    $user->setAdresse(trim($values->adresse));
                     $user->setTelephone(trim($values->telephone));
                     $user->setStatut("ACTIF");
-                    $prestataire = $this->getDoctrine()->getRepository(Prestataire::class)->find($values->prestataire);
-                    $a=$values->prestataire;
+                    $test=$this->getUser()->getId();
+                    $prestataire = $this->getDoctrine()->getRepository(Prestataire::class)->find($test);
                     $b=rand(20,100);
                     $c=$values->prenom[0].$values->prenom[1];
                     $d=rand(0,20);
                     $e=$values->nom[0].$values->nom[1];
-                    $f=$a.$b.$c.$d.$e;
+                    $f=$test.$b.$c.$d.$e;
                     $user->setUsername($f);
                     $user->setPrest($prestataire);
                     $user->setPassword($passwordEncoder->encodePassword($user, "welcome"));
                     if ($values->profil==1) {
-                        $user->setRoles(['ROLE_ADMIN']);    
+                        $user->setRoles(['ROLE_ADMINPART']);    
                     }
                     elseif ($values->profil==2) {
                         $user->setRoles(['ROLE_USER']);    
@@ -65,8 +64,7 @@ class PrestataireController extends AbstractController
                     $data=[
                         'Message'=>'UTILISATEUR CREER',
                         'Username'=> $user->getUsername(),
-                        'MOT DE PASSE'=>'welcome',
-                        'ROLES'=> $user->getRoles()
+                        'MOT DE PASSE'=>'welcome'
                     ];
                     return new JsonResponse($data, 201);
             }
@@ -93,12 +91,24 @@ class PrestataireController extends AbstractController
     {
         $retour=0;
         $taille=strlen($test);
-       for ($i=0; $i < $taille; $i++) { 
-           if (is_numeric($test[$i])) {
-               $retour=1;
-                break;
-           }
-       }
+        $test=strtolower($test);
+        for ($i=0; $i < $taille; $i++) 
+        {
+            $retour=1; 
+            if (ord($test[$i])==97 || ord($test[$i])==98 || ord($test[$i])==99 || ord($test[$i])==100 || ord($test[$i])==101
+            || ord($test[$i])==102 || ord($test[$i])==103 || ord($test[$i])==104 || ord($test[$i])==105 || ord($test[$i])==106
+            || ord($test[$i])==107 || ord($test[$i])==108 || ord($test[$i])==109 || ord($test[$i])==110 || ord($test[$i])==111
+            || ord($test[$i])==112 || ord($test[$i])==113 || ord($test[$i])==114 || ord($test[$i])==115 || ord($test[$i])==116
+            || ord($test[$i])==117 || ord($test[$i])==118 || ord($test[$i])==118 || ord($test[$i])==119 || ord($test[$i])==120
+            || ord($test[$i])==121 || ord($test[$i])==122 || $test[$i]=="é" || $test[$i]=="è" || $test[$i]=="ê" 
+            || $test[$i]=="à" || $test[$i]=="â" || $test[$i]=="ê" || $test[$i]=="ï" || $test[$i]=="î" || $test[$i]=="ç") {
+                $retour=0;
+            }
+            if (is_numeric($test[$i])) {
+                $retour=1;
+                 break;
+            }
+        }      
        if ($retour==0) {
            return $retour;
        }
