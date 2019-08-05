@@ -13,6 +13,7 @@ include_once $this->targetDirs[3].'/vendor/symfony/http-foundation/RequestMatche
 
 $this->privates['security.access_map'] = $instance = new \Symfony\Component\Security\Http\AccessMap();
 
+$instance->add(new \Symfony\Component\HttpFoundation\RequestMatcher('^/ajoutuser'), [0 => 'ROLE_PRESTATAIRE'], NULL);
 $instance->add(new \Symfony\Component\HttpFoundation\RequestMatcher('^/ajoutsys'), [0 => 'ROLE_SUPERADMIN'], NULL);
 $instance->add(new \Symfony\Component\HttpFoundation\RequestMatcher('^/ajoutprest'), [0 => 'ROLE_SUPERADMIN'], NULL);
 $instance->add(new \Symfony\Component\HttpFoundation\RequestMatcher('^/depot'), [0 => 'ROLE_CAISSIER'], NULL);

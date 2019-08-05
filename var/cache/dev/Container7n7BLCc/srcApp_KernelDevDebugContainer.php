@@ -1,6 +1,6 @@
 <?php
 
-namespace ContainerFHv8erB;
+namespace Container7n7BLCc;
 
 use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -834,6 +834,9 @@ class srcApp_KernelDevDebugContainer extends Container
             return ($this->privates['data_collector.request'] ?? ($this->privates['data_collector.request'] = new \Symfony\Component\HttpKernel\DataCollector\RequestDataCollector()));
         }, 1 => 'onKernelResponse'], 0);
         $instance->addListener('kernel.request', [0 => function () {
+            return ($this->privates['debug.debug_handlers_listener'] ?? $this->getDebug_DebugHandlersListenerService());
+        }, 1 => 'configure'], 2048);
+        $instance->addListener('console.command', [0 => function () {
             return ($this->privates['debug.debug_handlers_listener'] ?? $this->getDebug_DebugHandlersListenerService());
         }, 1 => 'configure'], 2048);
         $instance->addListener('kernel.exception', [0 => function () {
@@ -1757,7 +1760,8 @@ class srcApp_KernelDevDebugContainer extends Container
             yield 3 => ($this->privates['security.authentication.provider.guard.systeme1'] ?? $this->load('getSecurity_Authentication_Provider_Guard_Systeme1Service.php'));
             yield 4 => ($this->privates['security.authentication.provider.guard.systeme2'] ?? $this->load('getSecurity_Authentication_Provider_Guard_Systeme2Service.php'));
             yield 5 => ($this->privates['security.authentication.provider.guard.systeme3'] ?? $this->load('getSecurity_Authentication_Provider_Guard_Systeme3Service.php'));
-        }, 6), true);
+            yield 6 => ($this->privates['security.authentication.provider.guard.systeme4'] ?? $this->load('getSecurity_Authentication_Provider_Guard_Systeme4Service.php'));
+        }, 7), true);
 
         $instance->setEventDispatcher(($this->services['event_dispatcher'] ?? $this->getEventDispatcherService()));
 
@@ -1778,6 +1782,7 @@ class srcApp_KernelDevDebugContainer extends Container
             'security.firewall.map.context.systeme1' => ['privates', 'security.firewall.map.context.systeme1', 'getSecurity_Firewall_Map_Context_Systeme1Service.php', true],
             'security.firewall.map.context.systeme2' => ['privates', 'security.firewall.map.context.systeme2', 'getSecurity_Firewall_Map_Context_Systeme2Service.php', true],
             'security.firewall.map.context.systeme3' => ['privates', 'security.firewall.map.context.systeme3', 'getSecurity_Firewall_Map_Context_Systeme3Service.php', true],
+            'security.firewall.map.context.systeme4' => ['privates', 'security.firewall.map.context.systeme4', 'getSecurity_Firewall_Map_Context_Systeme4Service.php', true],
         ], [
             'security.firewall.map.context.dev' => '?',
             'security.firewall.map.context.login' => '?',
@@ -1785,6 +1790,7 @@ class srcApp_KernelDevDebugContainer extends Container
             'security.firewall.map.context.systeme1' => '?',
             'security.firewall.map.context.systeme2' => '?',
             'security.firewall.map.context.systeme3' => '?',
+            'security.firewall.map.context.systeme4' => '?',
         ]), new RewindableGenerator(function () {
             yield 'security.firewall.map.context.dev' => ($this->privates['.security.request_matcher.Iy.T22O'] ?? ($this->privates['.security.request_matcher.Iy.T22O'] = new \Symfony\Component\HttpFoundation\RequestMatcher('^/(_(profiler|wdt)|css|images|js)/')));
             yield 'security.firewall.map.context.login' => ($this->privates['.security.request_matcher.aOksG4F'] ?? ($this->privates['.security.request_matcher.aOksG4F'] = new \Symfony\Component\HttpFoundation\RequestMatcher('^/login')));
@@ -1792,7 +1798,8 @@ class srcApp_KernelDevDebugContainer extends Container
             yield 'security.firewall.map.context.systeme1' => ($this->privates['.security.request_matcher.4niSygQ'] ?? ($this->privates['.security.request_matcher.4niSygQ'] = new \Symfony\Component\HttpFoundation\RequestMatcher('^/ajoutsys')));
             yield 'security.firewall.map.context.systeme2' => ($this->privates['.security.request_matcher.8ZU1li8'] ?? ($this->privates['.security.request_matcher.8ZU1li8'] = new \Symfony\Component\HttpFoundation\RequestMatcher('^/ajoutprest')));
             yield 'security.firewall.map.context.systeme3' => ($this->privates['.security.request_matcher.gnUI2x2'] ?? ($this->privates['.security.request_matcher.gnUI2x2'] = new \Symfony\Component\HttpFoundation\RequestMatcher('^/depot')));
-        }, 6));
+            yield 'security.firewall.map.context.systeme4' => ($this->privates['.security.request_matcher.iYFFAyA'] ?? ($this->privates['.security.request_matcher.iYFFAyA'] = new \Symfony\Component\HttpFoundation\RequestMatcher('^/ajoutuser')));
+        }, 7));
     }
 
     /**

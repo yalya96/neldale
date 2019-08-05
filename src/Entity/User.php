@@ -51,7 +51,7 @@ class User implements UserInterface
     private $Telephone;
 
     /**
-     * @ORM\Column(type="integer", unique=true, nullable=true, length=16)
+     * @ORM\Column(type="string", unique=true, nullable=true, length=16)
      */
     private $CNI;
 
@@ -194,12 +194,12 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getCNI(): ?int
+    public function getCNI(): ?string
     {
         return $this->CNI;
     }
 
-    public function setCNI(int $CNI): self
+    public function setCNI(string $CNI): self
     {
         $this->CNI = $CNI;
 
